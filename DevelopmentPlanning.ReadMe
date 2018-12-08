@@ -1,0 +1,44 @@
+# =========================================================
+#                      Starting Point
+# =========================================================
+
+# Development Phases
+	Create simple file  Structure
+	Various Image handling Functionality  
+	Camera handling Functionality
+	Collect Training Videos And Images
+	Wireless Network Communication Mechanizism Setup
+	Image Processing
+	Image Manipulation
+	Lane Finding Process
+	Lane Analysis
+	Send Back Command To Client
+	Raspberry Process Command And Sent Signals Through GPIO pins
+	Car Moves
+	Then, Add More Accuracy And Make it Bug Free.
+
+
+
+
+# File With Explaining Their Functionality
+
+adjustment_window	= Graphical Interface For Image Adjustments
+client_stream		= Client Side Live Video Streaming Module
+config				= Config FIles
+machine_view		= Machine View Related Function
+main				= Main Script
+motors				= To Handle, Motor GPIO Related Functionality
+numptest			= For Random Idea Trial And Testing (not Useful)
+pi_api				= Camera Handling
+server_stream		= Server Side Steam Handling
+test				= For Test
+utili				= Important Functionality Implemented
+
+
+
+
+
+
+# =========================================================
+#                     Ending Point
+# =========================================================
