@@ -54,7 +54,7 @@ WIDTH = 1024
 HEIGHT = 786
 
 # Camera Resolution
-(RX, RY) = (1280,768)
+(RX, RY) = (640, 480)
 print '[*] Camera Resolution : ', (RX, RY)
 
 # OpenCv Resize 

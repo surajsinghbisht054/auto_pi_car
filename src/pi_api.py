@@ -119,7 +119,7 @@ class PiCamera:
 		return
 
 	# Capture Image
-	def capture(self, filename=str(time.time())+'.jpg'):
+	def capture(self, filename='../temporary/'+str(time.time())+'.jpg'):
 		# Camera Ready
 		time.sleep(0.2)
 		self.cam.capture(filename)
