@@ -53,6 +53,18 @@ class PiCamera:
 		It Automatically Handles All Internal Changes After Verify Config File Setting
 		'Comp' value.
 
+		Functionality Supported By PiCamera
+		
+			rotation(rotation) 
+			setResolution(resolution)
+			capture(filename=str(time.time())+'.jpg')
+			close()
+			release()
+			read()
+			getimage()
+
+
+
 	'''
 	def __init__(self, resolution=(RX, RY), rotation=0):
 		'''
@@ -158,7 +170,7 @@ def main():
 		if not comp:
 			cam.capture()
 
-		cv2.imwrite('save.jpg', cam.getimage())
+		cv2.imwrite('../temporary/save.jpg', cam.getimage())
 
 
 	except Exception as e:
