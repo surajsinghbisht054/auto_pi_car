@@ -374,8 +374,8 @@ def prepare_out_blend_frame(blend_on_road, img_binary, img_birdeye, img_fit, lin
     blend_on_road[off_y:thumb_h+off_y, 2*off_x+thumb_w:2*(off_x+thumb_w), :] = thumb_birdeye
 
     # add thumbnail of bird's eye view (lane-line highlighted)
-    #thumb_img_fit = cv2.resize(img_fit, dsize=(thumb_w, thumb_h))
-    #blend_on_road[off_y:thumb_h+off_y, 3*off_x+2*thumb_w:3*(off_x+thumb_w), :] = thumb_img_fit
+    thumb_img_fit = cv2.resize(img_fit, dsize=(thumb_w, thumb_h))
+    blend_on_road[off_y:thumb_h+off_y, 3*off_x+2*thumb_w:3*(off_x+thumb_w), :] = thumb_img_fit
     action = 'Unknown'
     action = ' {}'.format(stairing_movement)
     # add text (curvature and offset info) on the upper right of the blend

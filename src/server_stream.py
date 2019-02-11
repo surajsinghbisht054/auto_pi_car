@@ -38,7 +38,7 @@ from config import *
 import io 
 import numpy as np 
 from utili import imshow
-
+from PIL import Image
 
 
 # Server Side Class To Receive Image As np array From Network
@@ -64,10 +64,11 @@ class DStream:
 	# get image from socket
 	def getimage(self):
 		self.fstream.seek(0)
-		imgsize = struct.unpack('I', self.mstream.read(4))[0]
+		imgsize = struct.unpack('<L', self.mstream.read(4))[0]
 		self.fstream.write(self.mstream.read(imgsize))
-		self.fstream.seek(0)
-		return np.load(self.fstream)
+		#self.fstream.seek(0)
+		img = Image.open(self.fstream)		
+		return np.asarray(img)
 
 
 	# establish socket connection
