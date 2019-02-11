@@ -29,8 +29,8 @@ __email__	    = "surajsinghbisht054@gmail.com"
 
 
 # import module
-from src import main
+from src import client_stream
 
 # Client Side Functionality Trigger
 if __name__ == '__main__':
-	main.rasberry_pi_main()
+	client_stream.main()

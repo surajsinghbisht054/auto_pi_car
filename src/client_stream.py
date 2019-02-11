@@ -49,31 +49,18 @@ class ImageRail:
 	def initialise_setups(self):
 		print '[*] Going To Start Streaming Live Images..'
 		with pi_api.PiCamera() as cam:
-			if not comp:
-				# direct access to picamera object
-				cam = cam.cam
-			if comp:
+			
+			if comp:# not for desktop
 				return
+			cam = cam.cam
 			
 			for _ in cam.capture_continuous(self.fstream, 'jpeg'): # Use While For Continue Streaming
-				#self.fstream.seek(0)
-				#print '[*] First Image Streamed.'
-				#img = cam.getimage()
-				#np.save(self.fstream, img)
-				#self.fstream.seek(0)
 				imgsize = self.fstream.tell() # image Size
-				self.fstream.seek(0)
-				#self.mstream.write(struct.pack('I', imgsize))
-				self.sock.send(struct.pack('<L', imgsize))
-				#print imgsize
-				#self.mstream.flush()
-				#time.sleep(1)
-				#self.mstream.write(self.fstream.read(imgsize))
+				self.fstream.seek(0)				
+				self.sock.send(struct.pack('<L', imgsize))				
 				self.sock.send(self.fstream.read())
-				#self.mstream.flush()
 				self.fstream.seek(0)
 				self.fstream.truncate()
-				#print '[*] Image Sent'
 		return
 
 

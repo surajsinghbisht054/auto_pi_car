@@ -27,25 +27,12 @@ __version__	    = "Beta"
 __date__	    = "OCT, 2018"
 __email__	    = "surajsinghbisht054@gmail.com"
 
-import client_stream
+
 from server_stream import DStream
 from config import WINDOW_PREVIEWER
 from machine_view import DetectObject, EagleView, findslope
 from utili import FocusRegion
 from utili import imshow
-
-
-
-
-
-# For Client
-def rasberry_pi_main():
-	client_stream.main()
-	return
-
-
-
-
 
 
 # For Server
