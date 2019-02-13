@@ -7,7 +7,7 @@ Well, it really very interesting Project. Please Read All Below Details Carefull
 
 
 
-Check Github **[Here](https://raw.githubusercontent.com/ndrplz/self-driving-car/master/README.md)**
+Check Github **[Here](https://github.com/ndrplz/self-driving-car)**
 
 ```#!/usr/bin/python
 #

@@ -36,6 +36,7 @@ import struct
 from config import *
 import io 
 import numpy as np 
+import zlib
 
 # Sent Image Continously
 class ImageRail:
@@ -55,10 +56,15 @@ class ImageRail:
 			cam = cam.cam
 			
 			for _ in cam.capture_continuous(self.fstream, 'jpeg'): # Use While For Continue Streaming
-				imgsize = self.fstream.tell() # image Size
-				self.fstream.seek(0)				
-				self.sock.send(struct.pack('<L', imgsize))				
-				self.sock.send(self.fstream.read())
+				#imgsize = self.fstream.tell() # image Size
+				#self.fstream.seek(0)				
+				#self.sock.send(struct.pack('<L', imgsize))				
+				#self.sock.send(self.fstream.read())
+				self.fstream.seek(0)	# point to start
+				img = self.fstream.read() # read image
+				cimg = zlib.compress(img) # compress image
+				self.sock.send(struct.pack('<L', len(cimg))) # image size
+				self.sock.send(cimg) # send compress image
 				self.fstream.seek(0)
 				self.fstream.truncate()
 		return
