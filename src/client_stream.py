@@ -49,13 +49,13 @@ class ImageRail:
 
 	def initialise_setups(self):
 		print '[*] Going To Start Streaming Live Images..'
-		with pi_api.PiCamera() as cam:
+		with pi_api.PiCamera(rotation=180) as cam:
 			
 			if comp:# not for desktop
 				return
 			cam = cam.cam
 			
-			for _ in cam.capture_continuous(self.fstream, 'jpeg'): # Use While For Continue Streaming
+			for _ in cam.capture_continuous(self.fstream, 'jpeg', use_video_port=True): # Use While For Continue Streaming
 				#imgsize = self.fstream.tell() # image Size
 				#self.fstream.seek(0)				
 				#self.sock.send(struct.pack('<L', imgsize))				

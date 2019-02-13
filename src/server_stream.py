@@ -67,7 +67,7 @@ class DStream:
 		self.fstream.seek(0)
 		imgsize = struct.unpack('<L', self.mstream.read(4))[0]
 		self.fstream.write(zlib.decompress(self.mstream.read(imgsize)))
-		return np.asarray(Image.open(self.fstream))
+		return cv2.cvtColor(np.asarray(Image.open(self.fstream)), cv2.COLOR_RGB2BGR)
 
 
 	# establish socket connection
