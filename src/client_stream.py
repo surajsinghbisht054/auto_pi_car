@@ -56,10 +56,7 @@ class ImageRail:
 			cam = cam.cam
 			
 			for _ in cam.capture_continuous(self.fstream, 'jpeg', use_video_port=True): # Use While For Continue Streaming
-				#imgsize = self.fstream.tell() # image Size
-				#self.fstream.seek(0)				
-				#self.sock.send(struct.pack('<L', imgsize))				
-				#self.sock.send(self.fstream.read())
+				
 				self.fstream.seek(0)	# point to start
 				img = self.fstream.read() # read image
 				cimg = zlib.compress(img) # compress image

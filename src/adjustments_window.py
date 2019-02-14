@@ -282,7 +282,7 @@ class AdjustmentWindow(Tkinter.Tk):
 # main function
 def  main():
 	# frame array
-	frame = cv2.imread('../testingData/test1.jpg')
+	frame = cv2.imread('../testing_data/test1.jpg')
 	root = AdjustmentWindow(frame, className=' Adjustments Finding Window..')
 	root.mainloop()
 	return

@@ -30,7 +30,7 @@ __email__	    = "surajsinghbisht054@gmail.com"
 
 from server_stream import DStream
 from config import WINDOW_PREVIEWER
-from machine_view import DetectObject, EagleView, findslope
+from machine_view import DetectTrack
 from utili import FocusRegion
 from utili import imshow
 
@@ -41,50 +41,17 @@ def desktop_main():
 	# Automatic Content Closing Method
 	with DStream() as obj:
 		# machine view
-		mview = DetectObject()
+		mview = DetectTrack()
 
 		# Continouse Image Receiving
 		while True:
 			try:
 				# Image Received 
-				# im = obj.getimage()
 				# Image in Original Form
 				im  = obj.getimage()
 
 				# Image Without Any Processing
-				#if imshow('REAL Image', im):
-				#	break
-
-				#continue
-
-				# Focus Region
-				#if imshow('Focused', FocusRegion(im)):
-				#	break 
-
-				#mview.img = im #FocusRegion(im)
-
-				# Perform Machine View Functions
-				#oim = mview.highlight()	
-
-				# get All Edge line coordinate
-				#for coor in mview.coor:
-				#	for i in coor:
-				#		#print i,
-				#		i = findslope(*i)
-				#		#print i
-
-				#if imshow('FocusedHighlight', mview.img):
-				#	break 
-				#if imshow('Only Valid', oim):
-				#	break
-				#continue
-				#im = EagleView(oim, angle=90, copyim=False, baseangle = 0, distrostion=5)
-				#if imshow(WINDOW_PREVIEWER, im):
-				#	break
-				#print mview.img
-				#print mview.img[0]
-				#break	
-				mview.img = im
+				mview.setimg(im)
 				# Adjustment For Rasbi Pi Car
 				adjustment =  [[400,300],[1280-350,300]]
 				#adjustment = False
@@ -98,8 +65,6 @@ def desktop_main():
 				print e
 				break
 
-		# close routine
-		#obj.close()
 	return
 
 

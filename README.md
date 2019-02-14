@@ -1,13 +1,10 @@
 # Automatic Raspberry Pi Car RC-AIA Framework
 Auto Driving Rasberry Pi Simple Practise Project Based On  **[Udacity Self-Driving Car Engineer Nanodegree](https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013)**.
 
-Well, it really very interesting Project. Please Read All Below Details Carefully To Understand This Project.
+Well, it's really very interesting Project. Please Read All Below Details Carefully To Understand This Project.
 
 
-
-
-
-Check Github **[Here](https://github.com/ndrplz/self-driving-car)**
+And You Can Check Real Project Github Repo here **[Here](https://github.com/ndrplz/self-driving-car)**
 
 ```#!/usr/bin/python
 #

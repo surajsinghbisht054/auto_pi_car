@@ -64,7 +64,7 @@ def imshow(title, frame):
 
 		# print '[+] Initialising GTK Settings'
 		cv2.imshow(title, frame)
-		if cv2.waitKey(15)==27:
+		if cv2.waitKey(1)==27:
 			return True
 		else:
 			return False
@@ -530,8 +530,8 @@ def main():
 	processed_frames = 0                    # counter of frames processed (when processing video)
 	line_lt = Line(buffer_len=10)  # line on the left of the lane
 	line_rt = Line(buffer_len=10)  # line on the right of the lane
-	im = np.load('./../testingData/img.npy')
-	line_lt, line_rt, img_fit = get_fits_by_sliding_windows(im, line_lt, line_rt, n_windows=9, verbose=True)
+	im = np.load('./../testing_data/img.npy')
+	line_lt, line_rt, img_fit = get_fits_by_sliding_windows(im, line_lt, line_rt, n_windows=11, verbose=True)
 	
 	return
 	
