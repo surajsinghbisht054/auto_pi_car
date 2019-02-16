@@ -44,6 +44,15 @@ from config import *
 from utili import get_fits_by_sliding_windows,Line, draw_back_onto_the_road, imshow, get_fits_by_previous_fits, compute_offset_from_center, prepare_out_blend_frame, car_stairing_movement
 from adjustments_window import AdjustmentWindow
 
+if __name__ == '__main__':
+	ACCURATE = True
+	SOBEL = False
+else:
+	ACCURATE = False
+	SOBEL = False
+
+
+LANE_REFRESH_ITERATION = 25
 
 #
 # Range of Yellow Color Pixel To Detect All Yellow Pixels From Image
@@ -97,7 +106,8 @@ def get_binary_image_array_from_equalized_grayscale(frame):
 	"""
 	
 	eq_global = cv2.equalizeHist(frame.gray)
-	_, th = cv2.threshold(eq_global, thresh=250, maxval=255, type=cv2.THRESH_BINARY)
+	#_, th = cv2.threshold(eq_global, thresh=240, maxval=255, type=cv2.THRESH_BINARY)
+	_, th = cv2.threshold(eq_global, thresh=240, maxval=255, type=cv2.THRESH_TOZERO)
 	return th
 
 
@@ -108,7 +118,7 @@ def canny_edge_detection(frame):
 			ImageArray object
 
 	'''	
-	return cv2.Canny(frame.image, threshold1= 150, threshold2=250)
+	return cv2.Canny(frame.image, threshold1= 60, threshold2=250)
 
 # Sobel Thresh
 def thresh_frame_sobel(frame, kernel_size):
@@ -125,7 +135,6 @@ def thresh_frame_sobel(frame, kernel_size):
 	sobel_mag = np.uint8(sobel_mag / np.max(sobel_mag) * 255)
 
 	_, sobel_mag = cv2.threshold(sobel_mag, 50, 1, cv2.THRESH_BINARY)
-
 	return sobel_mag.astype(bool)
 
 
@@ -172,7 +181,7 @@ def highlight_tracks(im, verbose=False):
 		plt.show()
 		
 	# Sobel / Canny Edge Detection
-	if False:
+	if SOBEL:
 		# Another Technique
 		c= thresh_frame_sobel(im, 9)
 	else:
@@ -254,7 +263,7 @@ def get_mean_x(tm):
 	np.mean(pt4.nonzero()[0])+int(x/2),]
 
 # Composite Of All Above Function, To Detect Lane
-def MachineView(frameObj, verbose= False, keep_state=True,V1=[350, 560], V2=[1280-350, 560], socket=None):
+def MachineView(frameObj, verbose= False, keep_state=True,V1=[350, 560], V2=[1280-350, 560]):
 	global line_lt, line_rt, processed_frames
 
 	
@@ -265,56 +274,32 @@ def MachineView(frameObj, verbose= False, keep_state=True,V1=[350, 560], V2=[128
 	tm, revtm = EagleView(frameObj.image, tl=V1, tr=V2) # <--- Adjust This As Your Requirements
 	
 	# Perform Highlighting Functions
-	#im = highlight_tracks(frameObj, verbose=verbose)
 	tm = highlight_tracks(ImageArray(tm), verbose=verbose)
 	
 	if verbose:
 		plt.imshow(tm)
 		plt.show()
-
-	# Perform Eagle View
-	#tm, revtm = EagleView(im, tl=V1, tr=V2) # <--- Adjust This As Your Requirements
 	
 	if verbose:
 		plt.imshow(tm)
 		plt.show()
 
-	# Get Means Result of Traces
-	#p1,p2,p3,p4 = get_mean_x(tm)
-
-
-	if processed_frames > 0 and keep_state and line_lt.detected and line_rt.detected:
+	if processed_frames > 0 and keep_state and line_lt.detected and line_rt.detected and not ACCURATE:
 		line_lt, line_rt, img_fit = get_fits_by_previous_fits(tm, line_lt, line_rt, verbose=False)
 	else:
-		line_lt, line_rt, img_fit = get_fits_by_sliding_windows(tm, line_lt, line_rt, n_windows=11, verbose=False)
-
-	#line_lt, line_rt, img_fit = get_fits_by_sliding_windows(tm, line_lt, line_rt, n_windows=6, verbose=False)
+		line_lt, line_rt, img_fit = get_fits_by_sliding_windows(tm, line_lt, line_rt, n_windows=8, verbose=False)
 
 	blend_on_road = draw_back_onto_the_road(frameObj.image, revtm, line_lt, line_rt, True)
 	processed_frames += 1
 	offset_meter = compute_offset_from_center(line_lt, line_rt, tm.shape[1])
-	movement = car_stairing_movement(line_lt, line_rt, tm.shape[1])
+	movement = car_stairing_movement(line_lt, line_rt, offset_meter)
 	blend_on_road = prepare_out_blend_frame(blend_on_road, frameObj.image, tm, img_fit, line_lt, line_rt, offset_meter, movement)
-	taketurn = 0
-	if 300>movement>200:
-		taketurn = 0
-	elif 200>movement:
-		taketurn = 1
-	elif movement>700:
-		taketurn = 1
-	else:
-		taketurn = 2
 
-	if (processed_frames<20):
-		taketurn = 0
-
-	# first for movement, second for turns
-	if socket:
-		socket.send(pack('bb', 0, taketurn))
-	if processed_frames==10:
+	if processed_frames==LANE_REFRESH_ITERATION:
 		processed_frames=-1
-
-	return blend_on_road
+	#print "[*] Line X1 : {} | Y1 : {} | X-1 : {} | Y-1 : {} | Offset : {} | Movement : {}".format(line_rt.all_x[1],line_rt.all_y[1],line_rt.all_x[-1], line_lt.all_y[-1], offset_meter, movement)
+	
+	return (blend_on_road, offset_meter, movement)
 
 
 
@@ -371,20 +356,20 @@ class DetectTrack:
 	def getimg(self):
 		return self.img
 	
-	def highlight(self, adjustment, sock=None):
+	def highlight(self, adjustment):
 		global pas
+
 		if adjustment:
 			v1, v2 = adjustment
-			img = MachineView(self.imgarr, verbose= False, V1=v1, V2=v2, socket=sock)
+			img, offset, movement = MachineView(self.imgarr, verbose= False, V1=v1, V2=v2)
 		else:
+			offset = movement = None
 			img = True
-			if sock:
-				sock.send(pack('bb', 0, 0))
 			if pas>10:
 				root = AdjustmentWindow(self.img, className=' Quick Adjustment coordinates Finder')
 				root.mainloop()
-		pas += 1
-		return img
+			pas += 1
+		return (img, offset, movement)
 
 
 
@@ -402,7 +387,13 @@ def main():
 
 def second_main():
 	# path of testing video
-	path = '../testing_data/deskvideo.mp4'
+	if True:
+		path = '../testing_data/deskvideo.mp4'
+		adjustment = [[570,450],[710,450]]
+	else:
+		path = '../temporary/highway4.mp4'
+		adjustment = [[300,340],[554,340]]
+	
 	
 	# detect object class object
 	detectObj = DetectTrack()
@@ -411,24 +402,25 @@ def second_main():
 	video = cv2.VideoCapture(path)
 	
 	# bird view adjustments
-	adjustment = [[570,450],[710,450]]
-	
 	#while video.isOpened():
-	for i in range(150):
+	for i in range(400):
 		
 		# read image
 		ret, frame = video.read()
+		frame = cv2.flip(frame, 1)
 		
 		if ret:
 			# load image
 			detectObj.setimg(frame)
 
 			# perform track highligting algo functions
-			frame = detectObj.highlight(adjustment)
-
+			frame, offset, movement = detectObj.highlight(adjustment)
+			#print "[*] Offset : {} | movement : {}".format(offset, movement)
+			
 			# show image
-			if imshow('Preview', frame):
+			if imshow('Processed Video Frames', frame):
 				break
+			#time.sleep(4)
 		else:
 			break
 

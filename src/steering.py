@@ -28,50 +28,34 @@ __date__	    = "OCT, 2018"
 __email__	    = "surajsinghbisht054@gmail.com"
 
 
-from server_stream import DStream
-from config import WINDOW_PREVIEWER
-from machine_view import DetectTrack
-from utili import FocusRegion, resize
-from utili import imshow
+
+class PID:
+	def __init__(self, proportional, integral, derivative):
+		self.proportional = proportional
+		self.integral = integral
+		self.derivative = derivative
+		self.proportional_error = 0.0 
+		self.integral_error = 0.0
+		self.derivative_error = 0.0
 
 
+	def setError(self, error):
+		error = float(error)
+		self.integral_error += error # past
+		self.proportional_error = error # present
+		self.derivative_error = self.proportional_error - error # trying to predict future
+		return
 
-# For Server
-def desktop_main():
+	def totalerror(self):
+		return -((self.proportional * self.proportional_error)+(self.integral * self.integral_error)+(self.derivative * self.derivative_error))
 
-	# Automatic Content Closing Method
-	with DStream() as obj:
-		# machine view
-		machine_view_obj = DetectTrack()
-		# Continouse Image Receiving
-		while True:
-			if True:
-				# Image Received 
-				# Image in Original Form
-				im  = obj.getimage()
 
-				
-				#im = resize(im)
-				# Image Without Any Processing
-				machine_view_obj.setimg(im)
-
-				adjustment = False
-
-				# Adjustment For Rasbi Pi Car
-				#adjustment =  [[200,400],[824,400]]
-				
-				adjustment = [[200, 240],[440,240]] #--> 640,480
-				im, offset, movement = machine_view_obj.highlight(adjustment)
-				
-				im = resize(im)
-				if imshow('Processed Image View', im):
-					break
-			else:
-			#except Exception as e:
-				#print "[ Error Occured : ]", e
-				break
-
+def main():
+	pid = PID(0.1, 0.0001, 1.0)
+	for i in [1,2,3,4,-1,-2,-3,0,0,1.2,1.5]:
+		pid.setError(i)
+		print "[*] Error : {} | Action : {}".format(i, pid.totalerror())
 	return
 
-
-
+if __name__ == '__main__':
+	main()

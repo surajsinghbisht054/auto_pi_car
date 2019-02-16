@@ -51,7 +51,7 @@ print '[*] Use GTK Graphic Lib : ', GTK
 
 # Default Operational Image Height And Width
 WIDTH = 1024
-HEIGHT = 786
+HEIGHT = 600
 
 # Camera Resolution
 (RX, RY) = (640, 480)

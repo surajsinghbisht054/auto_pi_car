@@ -36,12 +36,18 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 import collections
+import warnings
+from steering import PID
+warnings.simplefilter('ignore', np.RankWarning)
 
+# our driving wheel
+pid = PID(0.01, 0.001, 1.0)
 
 ym_per_pix = 30.0 / 720.0   # meters per pixel in y dimension
 xm_per_pix = 3.7 / 700.0  # meters per pixel in x dimension
 
-
+def resize(frame):
+	return cv2.resize(frame, (WIDTH, HEIGHT))
 
 # Cutting region
 def FocusRegion(img, x1=cx1, y1=cy1, x2=cx2, y2=cy2):
@@ -90,6 +96,10 @@ class Line:
 
 		# flag to mark if the line was detected the last iteration
 		self.detected = False
+
+		# left lane x,y coordinates
+		self._x_coordinate = None
+		self._y_coordinate = None
 
 		# polynomial coefficients fitted on the last iteration
 		self.last_fit_pixel = None
@@ -279,6 +289,12 @@ def get_fits_by_sliding_windows(birdeye_binary, line_lt, line_rt, n_windows=9, v
 	out_img[nonzero_y[left_lane_inds], nonzero_x[left_lane_inds]] = [255, 0, 0]
 	out_img[nonzero_y[right_lane_inds], nonzero_x[right_lane_inds]] = [0, 0, 255]
 
+	line_lt._x_coordinate = nonzero_x[left_lane_inds]
+	line_lt._y_coordinate = nonzero_y[left_lane_inds]
+
+	line_rt._x_coordinate = nonzero_x[right_lane_inds]
+	line_rt._y_coordinate = nonzero_y[right_lane_inds]
+
 	if verbose:
 		f, ax = plt.subplots(1, 2)
 		f.set_facecolor('white')
@@ -320,20 +336,23 @@ def compute_offset_from_center(line_lt, line_rt, frame_width):
 
 #
 # Just as Basic Function
-def car_stairing_movement(line_lt, line_rt, frame_width):
-	global offset
-	move = 0 # 0 = Unknown
-			 # 1 = Left
-			 # 2 = Right
+def car_stairing_movement(line_lt, line_rt, offset):
 
+	#try:
+	#	left = np.polyfit(line_lt._x_coordinate, line_lt._y_coordinate, 3)
+	#	right = np.polyfit(line_rt._x_coordinate, line_rt._y_coordinate, 3)
+	#	wheel = left[0]*right[0]
+	#except:
+	#	wheel = 0
 	if line_lt.detected and line_rt.detected:
-		#
-		midpoint = frame_width / 2
-		offset = left_gap = midpoint - line_lt.all_x[-1]
-		#
-		
-
-	return offset
+		lx = line_lt._x_coordinate[0]-line_lt._x_coordinate[-1]
+		rx = line_rt._x_coordinate[0]-line_rt._x_coordinate[-1]
+		wheel = (lx+rx)/2.0 
+	else:
+		wheel = 0
+	pid.setError(wheel*offset)
+	pid.integral_error = offset
+	return pid.totalerror()
 
 
 def prepare_out_blend_frame(blend_on_road, img_binary, img_birdeye, img_fit, line_lt, line_rt, offset_meter, stairing_movement):
@@ -351,21 +370,18 @@ def prepare_out_blend_frame(blend_on_road, img_binary, img_birdeye, img_fit, lin
     """
     h, w = blend_on_road.shape[:2]
 
-    thumb_ratio = 0.2
+    thumb_ratio = 0.3
     thumb_h, thumb_w = int(thumb_ratio * h), int(thumb_ratio * w)
 
     off_x, off_y = 20, 15
 
     # add a gray rectangle to highlight the upper area
     mask = blend_on_road.copy()
-    mask = cv2.rectangle(mask, pt1=(0, 0), pt2=(w, thumb_h+2*off_y), color=(0, 0, 0), thickness=cv2.FILLED)
-    blend_on_road = cv2.addWeighted(src1=mask, alpha=0.2, src2=blend_on_road, beta=0.8, gamma=0)
+    mask = cv2.rectangle(mask, pt1=(0, 0), pt2=(w, thumb_h+2*off_y+(h/4)), color=(10, 10, 10), thickness=cv2.FILLED)
+    blend_on_road = cv2.addWeighted(src1=mask, alpha=0.4, src2=blend_on_road, beta=0.8, gamma=0)
 
     # add thumbnail of binary image
     thumb_binary = cv2.resize(img_binary, dsize=(thumb_w, thumb_h))
-    #print thumb_binary
-    #thumb_binary = np.dstack((thumb_binary, thumb_binary, thumb_binary)) * 255
-    #print thumb_binary
     blend_on_road[off_y:thumb_h+off_y, off_x:off_x+thumb_w, :] = thumb_binary
 
     # add thumbnail of bird's eye view
@@ -376,15 +392,18 @@ def prepare_out_blend_frame(blend_on_road, img_binary, img_birdeye, img_fit, lin
     # add thumbnail of bird's eye view (lane-line highlighted)
     thumb_img_fit = cv2.resize(img_fit, dsize=(thumb_w, thumb_h))
     blend_on_road[off_y:thumb_h+off_y, 3*off_x+2*thumb_w:3*(off_x+thumb_w), :] = thumb_img_fit
-    action = 'Unknown'
-    action = ' {}'.format(stairing_movement)
     # add text (curvature and offset info) on the upper right of the blend
     mean_curvature_meter = np.mean([line_lt.curvature_meter, line_rt.curvature_meter])
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(blend_on_road, 'Curvature radius: {:.02f}m'.format(mean_curvature_meter), (860, 40), font, 0.9, (255, 255, 255), 2, cv2.LINE_AA)
-    cv2.putText(blend_on_road, 'Offset from center: {:.02f}m'.format(offset_meter), (860, 100), font, 0.9, (255, 255, 255), 2, cv2.LINE_AA)
-    cv2.putText(blend_on_road, 'Displaced  : {}'.format(action), (860, 130), font, 0.9, (255,255,255), 2, cv2.LINE_AA)
-
+    if stairing_movement<0:
+    	action = 'Turn Left {} deg'
+    elif stairing_movement>0:
+    	action = 'Turn Right {} deg'
+    else:
+    	action = 'Straight'
+    cv2.putText(blend_on_road, 'Curvature radius   : {:.02f}m'.format(mean_curvature_meter), (w/3, (h/3)+20), font, 0.9, (255, 0, 0), 2, cv2.LINE_AA)
+    cv2.putText(blend_on_road, 'Offset from center : {:.02f}m'.format(offset_meter), (w/3, (h/3)+50), font, 0.9, (255, 255, 0), 2, cv2.LINE_AA)
+    cv2.putText(blend_on_road, action.format(stairing_movement), (w/3, (h/3)+80), font, 0.9, (0,255,255), 2, cv2.LINE_AA)
     return blend_on_road
 
 
@@ -465,8 +484,8 @@ def get_fits_by_previous_fits(birdeye_binary, line_lt, line_rt, verbose=False):
 	# Draw the lane onto the warped blank image
 	cv2.fillPoly(window_img, np.int_([left_line_pts]), (0, 255, 0))
 	cv2.fillPoly(window_img, np.int_([right_line_pts]), (0, 255, 0))
-	result = cv2.addWeighted(img_fit, 1, window_img, 0.3, 0)
-
+	#result = cv2.addWeighted(img_fit, 1, window_img, 0.3, 0)
+	result = img_fit
 	if verbose:
 		plt.imshow(result)
 		plt.plot(left_fitx, ploty, color='yellow')
