@@ -402,7 +402,7 @@ def prepare_out_blend_frame(blend_on_road, img_binary, img_birdeye, img_fit, lin
     else:
     	action = 'Straight'
     cv2.putText(blend_on_road, 'Curvature radius   : {:.02f}m'.format(mean_curvature_meter), (w/3, (h/3)+20), font, 0.9, (255, 0, 0), 2, cv2.LINE_AA)
-    cv2.putText(blend_on_road, 'Offset from center : {:.02f}m'.format(offset_meter), (w/3, (h/3)+50), font, 0.9, (255, 255, 0), 2, cv2.LINE_AA)
+    cv2.putText(blend_on_road, 'Offset from center : {:.02f}m'.format(offset_meter), (w/3, (h/3)+50), font, 0.9, (255, 0, 255), 2, cv2.LINE_AA)
     cv2.putText(blend_on_road, action.format(stairing_movement), (w/3, (h/3)+80), font, 0.9, (0,255,255), 2, cv2.LINE_AA)
     return blend_on_road
 

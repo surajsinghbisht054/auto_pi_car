@@ -403,11 +403,11 @@ def second_main():
 	
 	# bird view adjustments
 	#while video.isOpened():
-	for i in range(400):
+	for i in range(150):
 		
 		# read image
 		ret, frame = video.read()
-		frame = cv2.flip(frame, 1)
+		#frame = cv2.flip(frame, 1)
 		
 		if ret:
 			# load image
