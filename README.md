@@ -6,7 +6,8 @@ Well, it's really very interesting Project. Please Read All Below Details Carefu
 
 And You Can Check Real Project Github Repo here **[Here](https://github.com/ndrplz/self-driving-car)**
 
-```#!/usr/bin/python
+```
+#!/usr/bin/python
 #
 #
 # =++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -37,9 +38,10 @@ __email__	    = "surajsinghbisht054@gmail.com"
 
 ```
 # Introduction
-Actually, Friends I Wrote This Project Only For Fun And Practise Purpose. In This Project, My Purpose Was Just Try To Practically Implement Udacity Project Code In Real Life. So, I Directly Read Project Codes One By One. Let Me Share With You Little Bit Of Project Of Information About My Project.
+I Wrote This Project Only For Fun And Practise Purpose. Its Just To Practically Implement Udacity Project Code In Real Life. You can Directly Read Project Codes 
+Line By Line and Read Comments for more details. 
 
-# Implementation
+# Implementation Idea
 - Client, Server Architecture.
 - Laptop/Desktop as Server
 - Raspberry Pi as client.
@@ -55,7 +57,7 @@ Actually, Friends I Wrote This Project Only For Fun And Practise Purpose. In Thi
 - Server Will Process Image And Send Back Command For Toy Car Movements
 - Raspberry Received Command, GPIO signals sent.
 
-# Idea (Maybe, I Will Implement In Future.)
+# Future Plan
 - Add A Neural Network To Make Car Movement More Smooth.
 - Add More Features
 - Add More stability 
@@ -66,7 +68,7 @@ Actually, Friends I Wrote This Project Only For Fun And Practise Purpose. In Thi
 - Contact Me, For More Details.
 
 # Forgive Me
-Forgive Me If I have Done Anything Wrong implementation In This Code Because I'm very new guy in this feild. So, Forgive me and Don't Forget To Notify me My Mistake. It will be very Apricable.
+Forgive Me If I have Done Anything Wrong implementation In This Code Because I'm very new guy in this feild. So, Forgive me and Don't Forget To Notify me My Mistake. It will be very Apricatable.
 
 # Hardware (I Used Below Various Hardware Gadgets Like)
 - A Raspberry Pi Board
